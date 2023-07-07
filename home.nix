@@ -25,6 +25,10 @@
     nixfmt
     xdg-utils
 
+    # programming packages
+    python311
+    python311Packages.pip
+
     # window manager utils
     gnome3.seahorse
     gnome.eog
@@ -81,9 +85,9 @@
 
     # autostart hyprland on tt1 when alacritty is not used
     if test "$XDG_VTNR" = "1"
-    if test "$TERM" != "alacritty"
-    dbus-run-session Hyprland
-    end
+      if test (hyprctl monitors | wc -l) -eq 1
+        dbus-run-session Hyprland
+      end
     end
   '';
 
@@ -191,8 +195,8 @@
     # Lock menu
     bind = $modkey, L, exec, wlogout
     # Scroll through existing workspaces with mainMod + scroll
-    bind = $modkey, mouse_down, workspace, m+1
-    bind = $modkey, mouse_up, workspace, m-1
+    bind = $modkey, mouse_down, workspace, m-1
+    bind = $modkey, mouse_up, workspace, m+1
 
     # Move/resize windows with mainMod + LMB/RMB and dragging
     bindm = $modkey, mouse:272, movewindow
@@ -569,7 +573,7 @@
 
   xdg.configFile."alacritty/alacritty.yml".text = ''
     window:
-    opacity: 0.8
+      opacity: 0.8
   '';
 
   # You can also manage environment variables but you will have to manually
