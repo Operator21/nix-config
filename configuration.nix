@@ -1,14 +1,13 @@
 # Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
+# your system. Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [ # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -21,6 +20,7 @@
   services.tlp.enable = true;
 
   services.gnome.tracker-miners.enable = true;
+  services.gnome.gnome-keyring.enable = true;
 
   # enable bluetooth
   hardware.bluetooth.enable = true;
@@ -31,10 +31,10 @@
 
   # fish as default shell
   programs.fish.enable = true;
-  users.users.nicole.shell = pkgs.fish;
+  users.users.zdych.shell = pkgs.fish;
 
   networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  # networking.wireless.enable = true; # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -45,6 +45,24 @@
 
   # Set your time zone.
   time.timeZone = "Europe/Prague";
+
+  # define gnome polkit authentication service
+  systemd = {
+    user.services.polkit-gnome-authentication-agent-1 = {
+      description = "polkit-gnome-authentication-agent-1";
+      wantedBy = [ "graphical-session.target" ];
+      wants = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
+      serviceConfig = {
+        Type = "simple";
+        ExecStart =
+          "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+        Restart = "on-failure";
+        RestartSec = 1;
+        TimeoutStopSec = 10;
+      };
+    };
+  };
 
   # Select internationalisation properties.
   i18n.defaultLocale = "cs_CZ.UTF-8";
@@ -72,11 +90,11 @@
   console.useXkbConfig = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.nicole = {
+  users.users.zdych = {
     isNormalUser = true;
-    description = "Nicole";
+    description = "Stanislav Zdych";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [];
+    packages = with pkgs; [ ];
   };
 
   # Allow unfree packages
@@ -90,17 +108,18 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
-  ];
+  environment.systemPackages = with pkgs;
+    [
+      # vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+      # wget
+    ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
   # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
+  # enable = true;
+  # enableSSHSupport = true;
   # };
 
   # List services that you want to enable:
@@ -116,11 +135,43 @@
 
   # enable pipewire
   services.pipewire = {
-  	enable = true;
-  	alsa.enable = true;
-  	pulse.enable = true;
-  	jack.enable = true;
+    enable = true;
+    alsa.enable = true;
+    pulse.enable = true;
+    jack.enable = true;
   };
+
+  # mount disks
+  # mount nvme_ssd drive
+  fileSystems = {
+    "/mnt/ssd_nvme" = {
+      device = "/dev/disk/by-label/nvme_ssd";
+      fsType = "auto";
+      options = [ "nosuid" "nodev" "nofail" "x-gvfs-show" ];
+    };
+  };
+
+  # mount sda1 hard drive under label hdd_standard1
+  fileSystems."/mnt/hdd_standard1" = {
+    device = "/dev/disk/by-label/hdd_standard1";
+    fsType = "auto";
+    options = [ "nosuid" "nodev" "nofail" "x-gvfs-show" ];
+  };
+  
+  # mount sda2 hard drive under label hdd_standard2
+  fileSystems."/mnt/hdd_standard2" = {
+    device = "/dev/disk/by-label/hdd_standard2";
+    fsType = "auto";
+    options = [ "nosuid" "nodev" "nofail" "x-gvfs-show" ];
+  };
+
+  # mount large hdd drive under label hdd_large
+  fileSystems."/mnt/hdd_large" = {
+    device = "/dev/disk/by-label/hdd_large";
+    fsType = "auto";
+    options = [ "nosuid" "nodev" "nofail" "x-gvfs-show" ];
+  };
+
 
   security.rtkit.enable = true;
 
