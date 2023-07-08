@@ -157,7 +157,7 @@
     fsType = "auto";
     options = [ "nosuid" "nodev" "nofail" "x-gvfs-show" ];
   };
-  
+
   # mount sda2 hard drive under label hdd_standard2
   fileSystems."/mnt/hdd_standard2" = {
     device = "/dev/disk/by-label/hdd_standard2";
@@ -172,8 +172,10 @@
     options = [ "nosuid" "nodev" "nofail" "x-gvfs-show" ];
   };
 
-
   security.rtkit.enable = true;
+
+  # enable podman
+  virtualisation.podman.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
