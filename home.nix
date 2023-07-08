@@ -24,10 +24,10 @@
     fuzzel
     nixfmt
     xdg-utils
+	appimage-run
 
     # programming packages
-    python311
-    python311Packages.pip
+    toolbox
 
     # window manager utils
     gnome3.seahorse
@@ -46,6 +46,7 @@
     pamixer
     playerctl
     brightnessctl
+	pavucontrol
 
     # gui apps
     vscode
@@ -62,6 +63,13 @@
   # plain files is through 'home.file'.
   home.file = {
 
+  };
+
+  # set gnome apps to dark mode
+  dconf.settings = {
+	"org/gnome/desktop/interface" = {
+		"color-scheme" = "prefer-dark";
+	};
   };
 
   # fix waybar for hyprland
@@ -190,7 +198,7 @@
     # Toggle fullscreen
     bind = $modkey, F, Fullscreen
 
-    bind = , Print, exec, grim -g "$(slurp)" "/home/zdych/Pictures/Printscreens/$(date +%Y-%m-%d_%H-%M-%S).png"
+    bind = , Print, exec, grim -g "$(slurp)" "/home/zdych/img/printscreen/$(date +%Y-%m-%d_%H-%M-%S).png"
 
     # Lock menu
     bind = $modkey, L, exec, wlogout
@@ -311,176 +319,179 @@
 
   xdg.configFile."waybar/config".text = ''
     {
-    "margin-left": 4,
-    "margin-right": 4,
-    "margin-top": 4,
-    "spacing": 4, // Gaps between modules (4px)
-    "modules-left": ["wlr/workspaces", "custom/media","hyprland/window"],
-    "modules-center": ["clock"],
-    "modules-right": ["idle_inhibitor", "pulseaudio", "network", "cpu", "memory", "backlight", "keyboard-state", "tray",
-    "battery", "custom/logoutmenu"],
-    "keyboard-state": {
-    "numlock": true,
-    "capslock": true,
-    "format": "{name} {icon}",
-    "format-icons": {
-    "locked": "",
-    "unlocked": ""
+      "margin-left": 4,
+      "margin-right": 4,
+      "margin-top": 4,
+      "spacing": 4, // Gaps between modules (4px)
+      "modules-left": ["wlr/workspaces", "custom/media","hyprland/window"],
+      "modules-center": ["clock"],
+      "modules-right": ["idle_inhibitor", "pulseaudio", "network", "cpu", "memory", "backlight", "keyboard-state", "tray",
+      "battery", "custom/logoutmenu"],
+      "keyboard-state": {
+      "numlock": true,
+      "capslock": true,
+      "format": "{name} {icon}",
+      "format-icons": {
+      "locked": "",
+      "unlocked": ""
     }
     },
-    "custom/power": {
-    "format": "x",
-    "on-click": "wlogout",
+    "hyprland/window": { 
+      "format": "{}" ,
+      "rewrite" : { 
+        "": "~",
+      },
     },
     "wlr/workspaces": {
-    "format": "{icon}"
+      "format": "{icon}",
+      "on-click": "activate"
     },
     "idle_inhibitor": {
-    "format": "{icon}",
+      "format": "{icon}",
     "format-icons": {
-    "activated": "",
-    "deactivated": ""
+      "activated": "",
+      "deactivated": ""
     }
     },
     "tray": {
     // "icon-size": 21,
     "spacing": 10
     },
-    "clock": {
-    "format": "{:%H:%M:%S %d.%m.%Y}",
-    "interval": 1,
-    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-    "format-alt": "{:%Y-%m-%d}"
+      "clock": {
+      "format": "{:%H:%M:%S %d.%m.%Y}",
+      "interval": 1,
+      "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+      "format-alt": "{:%Y %d.%m.}"
     },
     "cpu": {
-    "format": "{usage}% ",
-    "tooltip": false
+      "format": "{usage}% ",
+      "tooltip": false
     },
     "memory": {
-    "format": "{}% "
+      "format": "{}% "
     },
     "temperature": {
-    // "thermal-zone": 2,
-    // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
-    "critical-threshold": 80,
-    // "format-critical": "{temperatureC}°C {icon}",
-    "format": "{temperatureC}°C {icon}",
-    "format-icons": ["", "", ""]
+      // "thermal-zone": 2,
+      // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+      "critical-threshold": 80,
+      // "format-critical": "{temperatureC}°C {icon}",
+      "format": "{temperatureC}°C {icon}",
+      "format-icons": ["", "", ""]
     },
     "backlight": {
-    // "device": "acpi_video1",
-    "format": "{percent}% {icon}",
-    "format-icons": ["", "", "", "", "", "", "", "", ""]
+      // "device": "acpi_video1",
+      "format": "{percent}% {icon}",
+      "format-icons": ["", "", "", "", "", "", "", "", ""]
     },
     "battery": {
-    "states": {
-    // "good": 95,
-    "warning": 30,
-    "critical": 15
-    },
-    "format": "{capacity}% {icon}",
-    "format-charging": "{capacity}% ",
-    "format-plugged": "{capacity}% ",
-    "format-alt": "{time} {icon}",
-    // "format-good": "", // An empty format will hide the module
-    // "format-full": "",
+      "states": {
+        // "good": 95,
+        "warning": 30,
+        "critical": 15
+      },
+      "format": "{capacity}% {icon}",
+      "format-charging": "{capacity}% ",
+      "format-plugged": "{capacity}% ",
+      "format-alt": "{time} {icon}",
+      // "format-good": "", // An empty format will hide the module
+      // "format-full": "",
     "format-icons": ["", "", "", "", ""]
     },
     "battery#bat2": {
-    "bat": "BAT2"
+      "bat": "BAT2"
     },
     "network": {
-    // "interface": "wlp2*", // (Optional) To force the use of this interface
-    "format-wifi": "{essid} ({signalStrength}%) ",
-    "format-ethernet": "{ipaddr}/{cidr} ",
-    "tooltip-format": "{ifname} via {gwaddr} ",
-    "format-linked": "{ifname} (No IP) ",
-    "format-disconnected": "Disconnected ⚠",
-    "format-alt": "{ifname}: {ipaddr}/{cidr}"
+      // "interface": "wlp2*", // (Optional) To force the use of this interface
+      "format-wifi": "{essid} ({signalStrength}%) ",
+      "format-ethernet": "{ipaddr}/{cidr} ",
+      "tooltip-format": "{ifname} via {gwaddr} ",
+      "format-linked": "{ifname} (No IP) ",
+      "format-disconnected": "Disconnected ⚠",
+      "format-alt": "{ifname}: {ipaddr}/{cidr}"
     },
     "pulseaudio": {
-    // "scroll-step": 1, // %, can be a float
-    "format": "{volume}% {icon} {format_source}",
-    "format-bluetooth": "{volume}% {icon} {format_source}",
-    "format-bluetooth-muted": " {icon} {format_source}",
-    "format-muted": " {format_source}",
-    "format-source": "{volume}% ",
-    "format-source-muted": "",
-    "format-icons": {
-    "headphone": "",
-    "hands-free": "",
-    "headset": "",
-    "phone": "",
-    "portable": "",
-    "car": "",
-    "default": ["", "", ""]
-    },
-    "on-click": "pavucontrol"
+      // "scroll-step": 1, // %, can be a float
+      "format": "{volume}% {icon} {format_source}",
+      "format-bluetooth": "{volume}% {icon} {format_source}",
+      "format-bluetooth-muted": " {icon} {format_source}",
+      "format-muted": " {format_source}",
+      "format-source": "{volume}% ",
+      "format-source-muted": "",
+      "format-icons": {
+        "headphone": "",
+        "hands-free": "",
+        "headset": "",
+        "phone": "",
+        "portable": "",
+        "car": "",
+        "default": ["", "", ""]
+      },
+      "on-click": "pavucontrol"
     },
     "custom/media": {
-    "format": "{icon} {}",
-    "return-type": "json",
-    "max-length": 40,
-    "format-icons": {
-    "spotify": "",
-    "default": "🎜"
+      "format": "{icon} {}",
+      "return-type": "json",
+      "max-length": 40,
+      "format-icons": {
+      "spotify": "",
+      "default": "🎜"
     },
     "escape": true,
     "exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources folder
     // "exec": "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
     },
     "custom/logoutmenu": {
-    "format": "",
-    "on-click": "hyprctl dispatch exec wlogout"
+      "format": "",
+      "on-click": "hyprctl dispatch exec wlogout"
     }
     }
   '';
   xdg.configFile."waybar/style.css".text = ''
     * {
-    /* `otf-font-awesome` is required to be installed for icons */
-    font-family: FontAwesome, Roboto, Helvetica, Arial, sans-serif;
-    font-size: 15px;
-    border-radius: 10px;
+      /* `otf-font-awesome` is required to be installed for icons */
+      font-family: FontAwesome, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      border-radius: 10px;
     }
 
     window#waybar {
-    background-color: rgb(27, 27, 27);
-    color: #ffffff;
-    transition-property: background-color;
-    transition-duration: .5s;
+      background-color: rgba(0, 0, 0, 0);
+      color: #ffffff;
+      /*transition-property: background-color;*/
+      transition-duration: .5s;
     }
 
     window#waybar.hidden {
-    opacity: 0.2;
+      opacity: 0.2;
     }
 
     window#waybar.termite {
-    background-color: #3F3F3F;
+      background-color: #3F3F3F;
     }
 
     window#waybar.chromium {
-    background-color: #000000;
-    border: none;
+      /*background-color: #000000;*/
+      border: none;
     }
 
     button {
-    /* Use box-shadow instead of border so the text isn't offset */
-    box-shadow: inset 0 -3px transparent;
-    /* Avoid rounded borders under each button name */
-    border: none;
-    border-radius: 0;
+      /* Use box-shadow instead of border so the text isn't offset */
+      box-shadow: inset 0 -3px transparent;
+      /* Avoid rounded borders under each button name */
+      border: none;
+      border-radius: 0;
     }
 
     /* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
     button:hover {
-    background: inherit;
-    box-shadow: inset 0 -3px #ffffff;
+      background: inherit;
+      box-shadow: inset 0 -3px #ffffff;
     }
 
 
     #mode {
-    background-color: #64727D;
-    border-bottom: 3px solid #ffffff;
+      background-color: #64727D;
+      border-bottom: 3px solid #ffffff;
     }
 
     #clock,
@@ -499,50 +510,63 @@
     #idle_inhibitor,
     #scratchpad,
     #language,
+    #workspaces,
+    #custom-logoutmenu,
+    #window,
     #mpd {
-    padding: 4px;
-    color: #ffffff;
-    /* border-radius: 5px; */
-    /* background: rgb(2, 92, 116); */
-    margin: 4px;
+      padding: 10px;
+      color: #ffffff;
+      border-radius: 25px;
+      /*background: rgb(2, 92, 116);*/
+      background: #262a32;
+      margin: 4px;
     }
 
     #window,
     #workspaces {
-    margin: 0 4px;
+      margin: 0 4px;
+    }
+
+    #workspaces button {
+      color: #ffffff;
+      margin: 2px;
+      border-radius: 40px;
     }
 
     #workspaces button.active {
-    background-color: #ffffff;
-    color: #000000;
+      background-color: #0db9d7;
+      color: #444b6a;
     }
 
     .modules-left, .modules-right, .modules-center {
-    margin-left: 25px;
-    margin-right: 25px;
+      margin-left: 25px;
+      margin-right: 25px;
     }
 
     /* If workspaces is the leftmost module, omit left margin */
     .modules-left > widget:first-child > #workspaces {
-    margin-left: 0;
+      margin-left: 0;
     }
 
     /* If workspaces is the rightmost module, omit right margin */
     .modules-right > widget:last-child > #workspaces {
-    margin-right: 0;
+      margin-right: 0;
     }
 
     #clock {
-    font-weight: bold;
+      color: #ea728a;
     }
 
+    #pulseaudio {
+      color: #ff9e64;
+    }
 
     #temperature {
-    background-color: #fa485f;
+      background-color: #fa485f;
     }
 
     #temperature.critical {
-    background-color: #ba2e18;
+      background-color: #ba2e18;
     }
   '';
 
