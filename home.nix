@@ -24,7 +24,7 @@
     fuzzel
     nixfmt
     xdg-utils
-	appimage-run
+	  appimage-run
 
     # programming packages
     toolbox
@@ -46,7 +46,7 @@
     pamixer
     playerctl
     brightnessctl
-	pavucontrol
+	  pavucontrol
 
     # gui apps
     vscode
@@ -55,6 +55,10 @@
     lollypop
     obs-studio
     obsidian
+    blender
+    vlc
+    qbittorrent
+    heroic
   ];
 
   #programs.gnome-keyring.enable = true;
@@ -94,7 +98,8 @@
     # autostart hyprland on tt1 when alacritty is not used
     if test "$XDG_VTNR" = "1"
       if test (hyprctl monitors | wc -l) -eq 1
-        dbus-run-session Hyprland
+	  	echo "Starting Hyprland session"
+		dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP && Hyprland
       end
     end
   '';
@@ -341,6 +346,8 @@
       "rewrite" : { 
         "": "~",
       },
+      "max-length": 200,
+      "separate-outputs": true
     },
     "wlr/workspaces": {
       "format": "{icon}",
